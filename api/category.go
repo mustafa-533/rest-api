@@ -12,8 +12,8 @@ import (
 
 const categoriesFile = "categories.json"
 
-func listCategories(c *gin.Context) {
-	categories, err := readCategoriesFromFile(categoriesFile)
+func (h *H) listCategories(c *gin.Context) {
+	categories, err := h.readCategoriesFromFile(categoriesFile)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -22,14 +22,14 @@ func listCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
-func getCategory(c *gin.Context) {
+func (h *H) getCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	categories, err := readCategoriesFromFile(categoriesFile)
+	categories, err := h.readCategoriesFromFile(categoriesFile)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -45,14 +45,14 @@ func getCategory(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNotFound)
 }
 
-func createCategory(c *gin.Context) {
+func (h *H) createCategory(c *gin.Context) {
 	var category model.Category
 	if err := c.ShouldBindJSON(&category); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	categories, err := readCategoriesFromFile(categoriesFile)
+	categories, err := h.readCategoriesFromFile(categoriesFile)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -70,7 +70,7 @@ func createCategory(c *gin.Context) {
 	category.ID = maxID + 1
 	categories = append(categories, category)
 
-	if err := writeCategoriesToFile(categoriesFile, categories); err != nil {
+	if err := h.writeCategoriesToFile(categoriesFile, categories); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -78,7 +78,7 @@ func createCategory(c *gin.Context) {
 	c.JSON(http.StatusCreated, category)
 }
 
-func updateCategory(c *gin.Context) {
+func (h *H) updateCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -92,7 +92,7 @@ func updateCategory(c *gin.Context) {
 	}
 	category.ID = id
 
-	categories, err := readCategoriesFromFile(categoriesFile)
+	categories, err := h.readCategoriesFromFile(categoriesFile)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -101,7 +101,7 @@ func updateCategory(c *gin.Context) {
 	for i, existingCategory := range categories {
 		if existingCategory.ID == id {
 			categories[i] = category
-			if err := writeCategoriesToFile(categoriesFile, categories); err != nil {
+			if err := h.writeCategoriesToFile(categoriesFile, categories); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
@@ -113,14 +113,14 @@ func updateCategory(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNotFound)
 }
 
-func deleteCategory(c *gin.Context) {
+func (h *H) deleteCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	categories, err := readCategoriesFromFile(categoriesFile)
+	categories, err := h.readCategoriesFromFile(categoriesFile)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -131,7 +131,7 @@ func deleteCategory(c *gin.Context) {
 			// Remove the category from the slice
 			categories = append(categories[:i], categories[i+1:]...)
 
-			if err := writeCategoriesToFile(categoriesFile, categories); err != nil {
+			if err := h.writeCategoriesToFile(categoriesFile, categories); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
@@ -144,7 +144,7 @@ func deleteCategory(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNotFound)
 }
 
-func readCategoriesFromFile(filename string) ([]model.Category, error) {
+func (h *H) readCategoriesFromFile(filename string) ([]model.Category, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -161,7 +161,7 @@ func readCategoriesFromFile(filename string) ([]model.Category, error) {
 	return categories, nil
 }
 
-func writeCategoriesToFile(filename string, data []model.Category) error {
+func (h *H) writeCategoriesToFile(filename string, data []model.Category) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
