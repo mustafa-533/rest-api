@@ -31,6 +31,11 @@ func main() {
 		MySQLURI: os.Getenv("MYSQL_URI"),
 	}
 
+	// Set Default Value for Port
+	if cfg.ListenHTTP == "" {
+		cfg.ListenHTTP = "8080"
+	}
+
 	logger, err := utils.LoadLogger(cfg.LogLevel)
 	if err != nil {
 		log.Fatalln("Load Logger Error", err)
