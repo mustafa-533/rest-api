@@ -12,7 +12,7 @@ const (
 	bookApiV1Path     = "/api/v1/books"
 )
 
-func (h *H) LoadRoutes() (http.Handler, error) {
+func (h *H) LoadRoutes() http.Handler {
 	// Init Router
 	g := gin.New()
 
@@ -40,5 +40,5 @@ func (h *H) LoadRoutes() (http.Handler, error) {
 	bookV1.PUT("/:id", h.updateBook)
 	bookV1.DELETE("/:id", h.deleteBook)
 
-	return g, nil
+	return g
 }
